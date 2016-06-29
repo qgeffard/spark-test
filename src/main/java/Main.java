@@ -15,7 +15,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
 
-
         /**
          * EXO 1 : Conf Spark
          *
@@ -29,7 +28,6 @@ public class Main {
 
         JavaSparkContext sparkContext = new JavaSparkContext(conf);
         sparkContext.setLogLevel("ERROR");
-
 
 
         /**
@@ -50,7 +48,6 @@ public class Main {
 
         System.out.println("*****  END  *****");
         System.out.println();
-
 
 
         /**
@@ -80,7 +77,6 @@ public class Main {
         System.out.println();
 
 
-
         /**
          * EXO 4 : Total de validations des passagers
          *
@@ -98,7 +94,6 @@ public class Main {
         System.out.println();
 
 
-
         /**
          * EXO 5 : Total de validations des passagers pour le mois de janvier
          *
@@ -108,89 +103,9 @@ public class Main {
         System.out.println();
         System.out.println("***** EXO 5 *****");
 
-        // Le total des voyageurs qui ont validé leur titre de transport sur le 1 er semestre 2015
-        long totalValidationsJanvier = validations.filter(v1 -> v1.getJour().getMonth().equals(Month.JANUARY)).map(Validation::getValidations).reduce((v1, v2) -> v1 + v2);
-        System.out.println("Nombre total de validations des passagers pour le mois de janvier : " + totalValidationsJanvier);
-
         System.out.println("*****  END  *****");
         System.out.println();
 
-
-
-        /**
-         * EXO 6 : Pourecentage des validations par mois
-         *
-         * Demander a Spark de calculer le pourecentage des validations par mois
-         */
-
-        System.out.println();
-        System.out.println("***** EXO 6 *****");
-
-        // Pourecentage des validations par mois :
-        // On regroupe par mois
-        validations.groupBy(v -> v.getJour().getMonth())
-                // On calcule le total des validations par mois
-                .map(tuple -> {
-                    Map<Month, Long> result = new HashMap<>();
-                    result.put(tuple._1(), 0L);
-                    tuple._2().forEach(validation -> {
-                        result.put(tuple._1(), result.get(tuple._1()) + validation.getValidations());
-                    });
-                    return result;
-                })
-                        // On recupère les resultat dans une map "Mois/Total validations du mois"
-                .reduce((v1, v2) -> {
-                    Map<Month, Long> result = new HashMap<Month, Long>();
-                    result.putAll(v1);
-                    result.putAll(v2);
-                    return result;
-                })
-                        // Pour chaque ligne on divise par le total des validation du semestre et on affiche le résultat
-                .forEach((month, aLong) -> System.out.println(month + " : " + ((double) aLong / totalValidations) * 100 + " %"));
-
-        System.out.println("*****  END  *****");
-        System.out.println();
-
-
-
-        /**
-         * EXO 7 : Top 5 des validation par gare
-         *
-         * Demander a Spark de calculer le top 5 des validation par gare
-         */
-
-        System.out.println();
-        System.out.println("***** EXO 7 *****");
-
-        // Top 5 des validations par gare :
-        // On groupe par gare
-        validations.groupBy(v -> v.getLibelleArret())
-                // Pour chaque gare on calcule le total des validations
-                .mapToPair(tuple -> {
-                    Map<String, Long> result = new HashMap<>();
-                    result.put(tuple._1(), 0L);
-                    tuple._2().forEach(validation -> {
-                        result.put(tuple._1(), result.get(tuple._1()) + validation.getValidations());
-                    });
-                    return new Tuple2<String, Long>(tuple._1(), result.get(tuple._1()));
-                })
-                        // On trie par ordre ascendant sur les validations et on garde le top 5
-                .top(5, MyTupleComparator.INSTANCE)
-                .stream().forEach(stringLongTuple2 -> System.out.println(stringLongTuple2._1() + " : " + stringLongTuple2._2() + " =====> " + ((double)  stringLongTuple2._2() / totalValidations) * 100 + " %"));
-
-        System.out.println("*****  END  *****");
-        System.out.println();
     }
-
-    // Comparator sur les validations par gare
-    static class MyTupleComparator implements Comparator<Tuple2<String, Long>>, Serializable {
-
-        final static MyTupleComparator INSTANCE = new MyTupleComparator();
-
-        public int compare(Tuple2<String, Long> t1, Tuple2<String, Long> t2) {
-            return t1._2.compareTo(t2._2);    // sort descending
-        }
-    }
-
 }
 
