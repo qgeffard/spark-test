@@ -42,7 +42,7 @@ public class Main {
         System.out.println();
         System.out.println("***** EXO 2 *****");
 
-        JavaRDD<String> lines = sparkContext.textFile("/home/omahjoub/workspace/spark-test/src/main/resources/validations.csv");
+        JavaRDD<String> lines = sparkContext.textFile("/Users/oussamamahjoub/Documents/workspace/spark-test/src/main/resources/validations.csv");
 
         long count = lines.count();
 
