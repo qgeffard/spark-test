@@ -5,6 +5,8 @@ import scala.Tuple2;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Month;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,7 +44,7 @@ public class Main {
         System.out.println();
         System.out.println("***** EXO 2 *****");
 
-        JavaRDD<String> lines = sparkContext.textFile("/Users/oussamamahjoub/Documents/workspace/spark-test/src/main/resources/validations.csv");
+        JavaRDD<String> lines = sparkContext.textFile("validations.csv");
 
         long count = lines.count();
 
